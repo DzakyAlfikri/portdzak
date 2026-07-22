@@ -3,7 +3,6 @@ import portherofix from './assets/portherofix.png'
 import helloport from './assets/helloport.png'
 import GradientBlinds from './GradientBlinds'
 import ProfileCard from './ProfileCard'
-import Carousel from './components/Carousel'
 import ExperienceSection from './components/ExperienceSection'
 import './App.css'
 
