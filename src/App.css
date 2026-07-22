@@ -1,0 +1,7 @@
+/* App.css — hero-specific resets & micro-interactions */
+
+/* Remove any Vite default overrides */
+#portfolio-root *:focus-visible {
+  outline: 1px solid rgba(255,255,255,0.5);
+  outline-offset: 3px;
+}
