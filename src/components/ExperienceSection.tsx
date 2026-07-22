@@ -135,6 +135,7 @@ export default function ExperienceSection() {
     <section id="experience" className="exp-new-section">
       <div id="exp-gradient-bg">
         <GradientBlinds
+          dpr={1}
           gradientColors={['#0a0a0a', '#2a2a2a', '#111111', '#3a3a3a', '#0f0f0f']}
           angle={0}
           noise={0.18}

@@ -67,6 +67,7 @@ function App() {
       <section id="hero">
         <div id="hero-gradient-bg">
           <GradientBlinds
+            dpr={1}
             gradientColors={['#0a0a0a', '#2a2a2a', '#111111', '#3a3a3a', '#0f0f0f']}
             angle={0}
             noise={0.18}
@@ -121,6 +122,9 @@ function App() {
               enableTilt={false}
               enableMobileTilt={false}
               behindGlowEnabled={false}
+              behindGlowColor="#ffffff"
+              behindGlowSize="100%"
+              miniAvatarUrl=""
               innerGradient="linear-gradient(145deg, rgba(20,20,20,0.9) 0%, rgba(50,50,50,0.6) 100%)"
               onContactClick={() => window.location.href = '#contact'}
             />
@@ -247,6 +251,7 @@ function App() {
       <section id="contact" className="section-padding">
         <div id="contact-gradient-bg">
           <GradientBlinds
+            dpr={1}
             gradientColors={['#0a0a0a', '#2a2a2a', '#111111', '#3a3a3a', '#0f0f0f']}
             angle={0}
             noise={0.18}
