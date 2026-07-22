@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import './FotoVideoGallery.css'
 
 // Import local assets
-import ccImg from '../assets/cc.JPG'
-import laptopImg from '../assets/laptop.JPG'
-import vlogImg from '../assets/vlog.JPG'
+import ccImg from '../assets/cc.jpg'
+import laptopImg from '../assets/laptop.jpg'
+import vlogImg from '../assets/vlog.jpg'
 import exp1 from '../assets/exp/exp1.jpg'
 import exp2 from '../assets/exp/exp2.jpg'
 import exp3 from '../assets/exp/exp3.jpg'
