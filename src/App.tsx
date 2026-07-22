@@ -92,7 +92,11 @@ function CategoryPage({ page, onBack }: { page: Exclude<Page, 'home' | 'admin'>;
 
 // ── Main App ──────────────────────────────────────────────
 function App() {
-  const [page, setPage] = useState<Page>('home')
+  const [page, setPage] = useState<Page>(() => {
+    const hash = window.location.hash.replace('#', '') as Page
+    if (['foto-video', 'desain-content', 'website', 'admin'].includes(hash)) return hash
+    return 'home'
+  })
   const [showAdminBtn, setShowAdminBtn] = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
 
@@ -107,6 +111,11 @@ function App() {
   }, [])
 
   useEffect(() => {
+    const hash = page === 'home' ? '' : page
+    window.location.hash = hash
+  }, [page])
+
+  useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault()
@@ -117,12 +126,19 @@ function App() {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
+  const goHomeToWork = () => {
+    setPage('home')
+    setTimeout(() => {
+      document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' })
+    }, 50)
+  }
+
   if (page === 'admin') {
-    return <AdminPanel onBack={() => setPage('home')} />
+    return <AdminPanel onBack={goHomeToWork} />
   }
 
   if (page !== 'home') {
-    return <CategoryPage page={page as Exclude<Page, 'home' | 'admin'>} onBack={() => setPage('home')} />
+    return <CategoryPage page={page as Exclude<Page, 'home' | 'admin'>} onBack={goHomeToWork} />
   }
 
   const categories: { key: Exclude<Page, 'home' | 'admin'>; label: string; sub: string; num: string }[] = [
