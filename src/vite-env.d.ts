@@ -25,3 +25,19 @@ declare module './components/Carousel' {
   const Carousel: React.ComponentType<any>
   export default Carousel
 }
+
+declare module '*.JPG' {
+  const src: string
+  export default src
+}
+
+declare module '*.jpg' {
+  const src: string
+  export default src
+}
+
+declare module '*.png' {
+  const src: string
+  export default src
+}
+

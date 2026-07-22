@@ -1,46 +1,99 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import portherofix from './assets/portherofix.png'
 import helloport from './assets/helloport.png'
 import GradientBlinds from './GradientBlinds'
 import ProfileCard from './ProfileCard'
 import ExperienceSection from './components/ExperienceSection'
+import FotoVideoGallery from './components/FotoVideoGallery'
+import AdminPanel from './components/AdminPanel'
+import dummyDesign from './assets/dummy_design.png'
+import dummyWebsite from './assets/dummy_website.png'
 import './App.css'
 
 // ── Page type ────────────────────────────────────────────
-type Page = 'home' | 'foto-video' | 'desain-content' | 'website'
+type Page = 'home' | 'foto-video' | 'desain-content' | 'website' | 'admin'
+
+// ── Helpers ──────────────────────────────────────────────
+function loadJSON<T>(key: string, fallback: T): T {
+  try { const s = localStorage.getItem(key); if (s) return JSON.parse(s) } catch {}
+  return fallback
+}
+
+const DEFAULT_DESIGNS = [
+  { title: 'Visual Identity & Branding Guidelines', cat: 'Branding', img: dummyDesign, desc: 'Perancangan identitas visual lengkap mulai dari logo, palet warna, hingga panduan aplikasi media.' },
+  { title: 'Social Media Campaign & Feed Design', cat: 'Social Media', img: dummyDesign, desc: 'Desain konten media sosial interaktif untuk campaign promosi event nasional.' },
+  { title: 'Poster & Publication Design', cat: 'Graphic Design', img: dummyDesign, desc: 'Desain media cetak dan digital poster seminar dan kegiatan organisasi.' },
+]
+
+const DEFAULT_WEBSITES = [
+  { title: 'Interactive Portfolio Website', cat: 'Web Development', img: dummyWebsite, desc: 'Pengembangan website portofolio interaktif berbasis React, TypeScript, dan Vite.' },
+  { title: 'UI/UX Redesign for Event Platform', cat: 'UI/UX Design', img: dummyWebsite, desc: 'Desain antarmuka platform registrasi event dengan prinsip user-centered design.' },
+  { title: 'Landing Page Creative Studio', cat: 'Frontend', img: dummyWebsite, desc: 'Situs landing page responsif dengan animasi smooth dan performa tinggi.' },
+]
 
 // ── Category Page Component ───────────────────────────────
-function CategoryPage({ page, onBack }: { page: Page; onBack: () => void }) {
-  const info: Record<Exclude<Page, 'home'>, { title: string; sub: string; count: string }> = {
-    'foto-video':     { title: 'Foto & Video',      sub: 'Photography · Videography · Video Editing', count: '20+ Proyek' },
-    'desain-content': { title: 'Desain & Content',  sub: 'Graphic Design · Branding · Social Media',  count: '15+ Proyek' },
-    'website':        { title: 'Website',            sub: 'UI/UX Design · Frontend · Development',     count: '10+ Proyek' },
+function CategoryPage({ page, onBack }: { page: Exclude<Page, 'home' | 'admin'>; onBack: () => void }) {
+  const designs = loadJSON('jaki_portfolio_design', DEFAULT_DESIGNS)
+  const websites = loadJSON('jaki_portfolio_website', DEFAULT_WEBSITES)
+  const photos = loadJSON('jaki_portfolio_photos', [])
+  const videos = loadJSON('jaki_portfolio_videos', [])
+
+  const fvCount = photos.length + videos.length
+  const info: Record<string, { title: string; sub: string; count: string }> = {
+    'foto-video':     { title: 'Foto & Video',      sub: 'Photography · Videography · Video Editing', count: `${fvCount} Proyek` },
+    'desain-content': { title: 'Desain & Content',  sub: 'Graphic Design · Branding · Social Media',  count: `${designs.length} Proyek` },
+    'website':        { title: 'Website',            sub: 'UI/UX Design · Frontend · Development',     count: `${websites.length} Proyek` },
   }
-  const current = info[page as Exclude<Page, 'home'>]
+  const current = info[page]
 
   return (
     <main id="portfolio-root">
-      <div className="catpage-nav">
-        <button className="catpage-back" onClick={onBack}>
-          <span className="catpage-back-arrow">←</span>
-          <span>Kembali</span>
-        </button>
-        <span id="nav-logo" style={{ cursor: 'pointer' }} onClick={onBack}>JK.</span>
-      </div>
-
       <section className="catpage-hero">
         <div className="container">
+          <button className="catpage-hero-back" onClick={onBack}>←</button>
           <p className="catpage-eyebrow">{current.count}</p>
           <h1 className="catpage-title">{current.title}</h1>
           <p className="catpage-sub">{current.sub}</p>
         </div>
       </section>
 
-      <section className="catpage-empty">
+      <section className="catpage-content-sec">
         <div className="container">
-          <div className="catpage-placeholder">
-            <p className="catpage-placeholder-text">Proyek akan segera ditambahkan.</p>
-          </div>
+          {page === 'foto-video' && <FotoVideoGallery />}
+
+          {page === 'desain-content' && (
+            <div className="generic-grid">
+              {designs.map((item: any, i: number) => (
+                <div key={item.id || i} className="generic-card">
+                  <div className="generic-card-img-wrap">
+                    <img src={item.img} alt={item.title} className="generic-card-img" />
+                    <span className="generic-card-tag">{item.cat}</span>
+                  </div>
+                  <div className="generic-card-body">
+                    <h3 className="generic-card-title">{item.title}</h3>
+                    <p className="generic-card-desc">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {page === 'website' && (
+            <div className="generic-grid">
+              {websites.map((item: any, i: number) => (
+                <div key={item.id || i} className="generic-card">
+                  <div className="generic-card-img-wrap">
+                    <img src={item.img} alt={item.title} className="generic-card-img" />
+                    <span className="generic-card-tag">{item.cat}</span>
+                  </div>
+                  <div className="generic-card-body">
+                    <h3 className="generic-card-title">{item.title}</h3>
+                    <p className="generic-card-desc">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </main>
@@ -50,12 +103,39 @@ function CategoryPage({ page, onBack }: { page: Page; onBack: () => void }) {
 // ── Main App ──────────────────────────────────────────────
 function App() {
   const [page, setPage] = useState<Page>('home')
+  const [showAdminBtn, setShowAdminBtn] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
-  if (page !== 'home') {
-    return <CategoryPage page={page} onBack={() => setPage('home')} />
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(([entry]) => {
+      setShowAdminBtn(entry.isIntersecting)
+    }, { threshold: 0.5 })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault()
+        setPage(p => p === 'admin' ? 'home' : 'admin')
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
+  if (page === 'admin') {
+    return <AdminPanel onBack={() => setPage('home')} />
   }
 
-  const categories: { key: Exclude<Page, 'home'>; label: string; sub: string; num: string }[] = [
+  if (page !== 'home') {
+    return <CategoryPage page={page as Exclude<Page, 'home' | 'admin'>} onBack={() => setPage('home')} />
+  }
+
+  const categories: { key: Exclude<Page, 'home' | 'admin'>; label: string; sub: string; num: string }[] = [
     { key: 'foto-video',     label: 'Foto & Video',     sub: 'Photography · Videography · Video Editing', num: '01' },
     { key: 'desain-content', label: 'Desain & Content', sub: 'Graphic Design · Branding · Social Media',  num: '02' },
     { key: 'website',        label: 'Website',           sub: 'UI/UX Design · Frontend · Development',    num: '03' },
@@ -84,7 +164,7 @@ function App() {
         </div>
 
         <nav id="hero-nav">
-          <span id="nav-logo">JK.</span>
+          <img src={portherofix} alt="JK." id="nav-logo" />
           <ul id="nav-links">
             <li><a href="#about">About</a></li>
             <li><a href="#work">Work</a></li>
@@ -310,6 +390,13 @@ function App() {
           </div>
         </div>
       </section>
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
+      {showAdminBtn && (
+        <button className="admin-float-btn" onClick={() => setPage('admin')} title="Admin Panel">
+          <img src={portherofix} alt="Admin" className="admin-float-avatar" />
+        </button>
+      )}
     </main>
   )
 }
