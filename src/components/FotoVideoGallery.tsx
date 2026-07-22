@@ -1,17 +1,6 @@
 import { useState, useEffect } from 'react'
 import './FotoVideoGallery.css'
-
-// Import local assets
-import ccImg from '../assets/cc.jpg'
-import laptopImg from '../assets/laptop.jpg'
-import vlogImg from '../assets/vlog.jpg'
-import exp1 from '../assets/exp/exp1.jpg'
-import exp2 from '../assets/exp/exp2.jpg'
-import exp3 from '../assets/exp/exp3.jpg'
-import exp4 from '../assets/exp/exp4.jpg'
-import exp5 from '../assets/exp/exp5.jpg'
-import exp6 from '../assets/exp/exp6.jpg'
-import dummyDokumentasi from '../assets/dummy_dokumentasi.png'
+import { getProjects } from '../firebase/services'
 
 export type SubMenu = 'foto' | 'video'
 
@@ -35,202 +24,20 @@ export interface VideoItem {
   description?: string
 }
 
-const DEFAULT_PHOTOS: PhotoItem[] = [
-  {
-    id: 'p1',
-    title: 'Stage & Musical Performance',
-    category: 'Dokumentasi',
-    src: ccImg,
-    date: '2025',
-    description: 'Dokumentasi penampilan panggung live concert dengan lighting dramatis dan atmosfer energik.',
-    aspect: 'tall',
-  },
-  {
-    id: 'p2',
-    title: 'Workspace & Creative Setup',
-    category: 'Lifestyle',
-    src: laptopImg,
-    date: '2025',
-    description: 'Eksplorasi estetika ruang kerja dan setup produksi digital.',
-    aspect: 'wide',
-  },
-  {
-    id: 'p3',
-    title: 'Behind The Scene Vlog',
-    category: 'Event',
-    src: vlogImg,
-    date: '2024',
-    description: 'Momen spontan dibalik layar saat pengambilan video dokumentasi organisasi.',
-    aspect: 'portrait',
-  },
-  {
-    id: 'p4',
-    title: 'Campus Life & Moments',
-    category: 'Dokumentasi',
-    src: exp1,
-    date: '2024',
-    description: 'Sorotan kegiatan akademik dan event mahasiswa Universitas Jenderal Soedirman.',
-    aspect: 'square',
-  },
-  {
-    id: 'p5',
-    title: 'Urban Architecture & Lines',
-    category: 'Street',
-    src: exp2,
-    date: '2024',
-    description: 'Komposisi geometris dan arsitektur kota dengan tone warna monokrom bermakna.',
-    aspect: 'tall',
-  },
-  {
-    id: 'p6',
-    title: 'Human Expression & Stage Light',
-    category: 'Portrait',
-    src: exp3,
-    date: '2024',
-    description: 'Potret ekspresif pengisi acara dalam sorotan lampu panggung.',
-    aspect: 'portrait',
-  },
-  {
-    id: 'p7',
-    title: 'Crowd & Energy Coverage',
-    category: 'Event',
-    src: exp4,
-    date: '2024',
-    description: 'Antusiasme audiens dalam festival musik dan pertunjukan seni.',
-    aspect: 'wide',
-  },
-  {
-    id: 'p8',
-    title: 'Artistic Lighting & Shadows',
-    category: 'Portrait',
-    src: exp5,
-    date: '2023',
-    description: 'Permainan pencahayaan low-key dan kontras shadow visual.',
-    aspect: 'tall',
-  },
-  {
-    id: 'p9',
-    title: 'Event Highlight & Awarding',
-    category: 'Dokumentasi',
-    src: exp6,
-    date: '2023',
-    description: 'Momen pengabdian dan serah terima dalam organisasi mahasiswa.',
-    aspect: 'square',
-  },
-  {
-    id: 'p10',
-    title: 'Official Media & Press Coverage',
-    category: 'Dokumentasi',
-    src: dummyDokumentasi,
-    date: '2024',
-    description: 'Dokumentasi resmi liputan kegiatan seminar nasional dan workshop.',
-    aspect: 'wide',
-  },
-  {
-    id: 'p11',
-    title: 'Golden Hour Silhouette',
-    category: 'Nature',
-    src: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1000&q=80',
-    date: '2024',
-    description: 'Siluet senja menawan dengan pencahayaan alami di ruang terbuka.',
-    aspect: 'tall',
-  },
-  {
-    id: 'p12',
-    title: 'Neon Nights & Atmosphere',
-    category: 'Street',
-    src: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1000&q=80',
-    date: '2024',
-    description: 'Nuansa warna neon malam hari dengan estetika sinematik modern.',
-    aspect: 'portrait',
-  },
-]
-
-const DEFAULT_VIDEOS: VideoItem[] = [
-  {
-    id: 'v1',
-    title: 'Company & Event Aftermovie 2024',
-    category: 'Aftermovie',
-    duration: '02:45',
-    thumbnail: vlogImg,
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    description: 'Cinematic aftermovie yang merangkum keseruan dan dinamika acara festival dari awal hingga akhir.',
-  },
-  {
-    id: 'v2',
-    title: 'Short Cinematic Reel - Sound of Stage',
-    category: 'Cinematic',
-    duration: '00:58',
-    thumbnail: ccImg,
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    description: 'Video reel vertical short-form yang dirancang khusus untuk Instagram Reels & TikTok.',
-  },
-  {
-    id: 'v3',
-    title: 'Product Commercial & Visual Teaser',
-    category: 'Commercial',
-    duration: '01:30',
-    thumbnail: laptopImg,
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    description: 'Promotional video teaser dengan motion graphics dan transisi cepat yang memikat penonton.',
-  },
-  {
-    id: 'v4',
-    title: 'Documentary Short: Student Journey',
-    category: 'Dokumenter',
-    duration: '04:12',
-    thumbnail: exp3,
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-    description: 'Kilas balik kisah perjalanan inspiratif mahasiswa dalam mencapai target organisasi.',
-  },
-  {
-    id: 'v5',
-    title: 'Music Festival Teaser 2024',
-    category: 'Teaser',
-    duration: '01:15',
-    thumbnail: exp4,
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
-    description: 'Video promosi pra-event berdurasi singkat dengan rhythm pacing yang menggugah semangat.',
-  },
-  {
-    id: 'v6',
-    title: 'Organization Annual Profile Video',
-    category: 'Company Profile',
-    duration: '03:20',
-    thumbnail: exp6,
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetBites.mp4',
-    description: 'Video profil resmi organisasi yang memaparkan visi, misi, serta pencapaian utama.',
-  },
-]
-
 export default function FotoVideoGallery() {
   const [activeTab, setActiveTab] = useState<SubMenu>('foto')
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua')
 
-  // Dynamic Photos & Videos state backed by LocalStorage
-  const [photos, setPhotos] = useState<PhotoItem[]>(() => {
-    const saved = localStorage.getItem('jaki_portfolio_photos')
-    if (saved) {
-      try { return JSON.parse(saved) } catch (e) { console.error(e) }
-    }
-    return DEFAULT_PHOTOS
-  })
-
-  const [videos, setVideos] = useState<VideoItem[]>(() => {
-    const saved = localStorage.getItem('jaki_portfolio_videos')
-    if (saved) {
-      try { return JSON.parse(saved) } catch (e) { console.error(e) }
-    }
-    return DEFAULT_VIDEOS
-  })
+  const [photos, setPhotos] = useState<PhotoItem[]>([])
+  const [videos, setVideos] = useState<VideoItem[]>([])
 
   useEffect(() => {
-    localStorage.setItem('jaki_portfolio_photos', JSON.stringify(photos))
-  }, [photos])
-
-  useEffect(() => {
-    localStorage.setItem('jaki_portfolio_videos', JSON.stringify(videos))
-  }, [videos])
+    getProjects().then(data => {
+      if (!data) return
+      if (data.photos) setPhotos(data.photos)
+      if (data.videos) setVideos(data.videos)
+    }).catch(() => {})
+  }, [])
 
   // Lightbox / Modal States
   const [activePhoto, setActivePhoto] = useState<PhotoItem | null>(null)

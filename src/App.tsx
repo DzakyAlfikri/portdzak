@@ -6,39 +6,29 @@ import ProfileCard from './ProfileCard'
 import ExperienceSection from './components/ExperienceSection'
 import FotoVideoGallery from './components/FotoVideoGallery'
 import AdminPanel from './components/AdminPanel'
-import dummyDesign from './assets/dummy_design.png'
-import dummyWebsite from './assets/dummy_website.png'
+import { getProjects } from './firebase/services'
 import './App.css'
 
 // ── Page type ────────────────────────────────────────────
 type Page = 'home' | 'foto-video' | 'desain-content' | 'website' | 'admin'
 
-// ── Helpers ──────────────────────────────────────────────
-function loadJSON<T>(key: string, fallback: T): T {
-  try { const s = localStorage.getItem(key); if (s) return JSON.parse(s) } catch {}
-  return fallback
-}
-
-const DEFAULT_DESIGNS = [
-  { title: 'Visual Identity & Branding Guidelines', cat: 'Branding', img: dummyDesign, desc: 'Perancangan identitas visual lengkap mulai dari logo, palet warna, hingga panduan aplikasi media.' },
-  { title: 'Social Media Campaign & Feed Design', cat: 'Social Media', img: dummyDesign, desc: 'Desain konten media sosial interaktif untuk campaign promosi event nasional.' },
-  { title: 'Poster & Publication Design', cat: 'Graphic Design', img: dummyDesign, desc: 'Desain media cetak dan digital poster seminar dan kegiatan organisasi.' },
-]
-
-const DEFAULT_WEBSITES = [
-  { title: 'Interactive Portfolio Website', cat: 'Web Development', img: dummyWebsite, desc: 'Pengembangan website portofolio interaktif berbasis React, TypeScript, dan Vite.' },
-  { title: 'UI/UX Redesign for Event Platform', cat: 'UI/UX Design', img: dummyWebsite, desc: 'Desain antarmuka platform registrasi event dengan prinsip user-centered design.' },
-  { title: 'Landing Page Creative Studio', cat: 'Frontend', img: dummyWebsite, desc: 'Situs landing page responsif dengan animasi smooth dan performa tinggi.' },
-]
-
 // ── Category Page Component ───────────────────────────────
 function CategoryPage({ page, onBack }: { page: Exclude<Page, 'home' | 'admin'>; onBack: () => void }) {
-  const designs = loadJSON('jaki_portfolio_design', DEFAULT_DESIGNS)
-  const websites = loadJSON('jaki_portfolio_website', DEFAULT_WEBSITES)
-  const photos = loadJSON('jaki_portfolio_photos', [])
-  const videos = loadJSON('jaki_portfolio_videos', [])
+  const [designs, setDesigns] = useState<any[]>([])
+  const [websites, setWebsites] = useState<any[]>([])
+  const [fvCount, setFvCount] = useState(0)
 
-  const fvCount = photos.length + videos.length
+  useEffect(() => {
+    getProjects().then(data => {
+      if (!data) return
+      if (data.designs) setDesigns(data.designs)
+      if (data.websites) setWebsites(data.websites)
+      if (data.photos || data.videos) {
+        setFvCount((data.photos?.length || 0) + (data.videos?.length || 0))
+      }
+    }).catch(() => {})
+  }, [])
+
   const info: Record<string, { title: string; sub: string; count: string }> = {
     'foto-video':     { title: 'Foto & Video',      sub: 'Photography · Videography · Video Editing', count: `${fvCount} Proyek` },
     'desain-content': { title: 'Desain & Content',  sub: 'Graphic Design · Branding · Social Media',  count: `${designs.length} Proyek` },

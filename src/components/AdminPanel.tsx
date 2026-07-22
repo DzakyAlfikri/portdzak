@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
-import dummyDesign from '../assets/dummy_design.png'
-import dummyWebsite from '../assets/dummy_website.png'
+import { useState, useEffect, useRef } from 'react'
+import { getProjects, saveProjects } from '../firebase/services'
 import './AdminPanel.css'
 
 const ADMIN_PASSWORD = 'jaki2026'
@@ -41,27 +40,7 @@ interface VideoItem {
   description?: string
 }
 
-const DEFAULT_DESIGNS: DesignProject[] = [
-  { id: 'd1', title: 'Visual Identity & Branding Guidelines', cat: 'Branding', img: dummyDesign, desc: 'Perancangan identitas visual lengkap mulai dari logo, palet warna, hingga panduan aplikasi media.' },
-  { id: 'd2', title: 'Social Media Campaign & Feed Design', cat: 'Social Media', img: dummyDesign, desc: 'Desain konten media sosial interaktif untuk campaign promosi event nasional.' },
-  { id: 'd3', title: 'Poster & Publication Design', cat: 'Graphic Design', img: dummyDesign, desc: 'Desain media cetak dan digital poster seminar dan kegiatan organisasi.' },
-]
-
-const DEFAULT_WEBSITES: WebsiteProject[] = [
-  { id: 'w1', title: 'Interactive Portfolio Website', cat: 'Web Development', img: dummyWebsite, desc: 'Pengembangan website portofolio interaktif berbasis React, TypeScript, dan Vite.' },
-  { id: 'w2', title: 'UI/UX Redesign for Event Platform', cat: 'UI/UX Design', img: dummyWebsite, desc: 'Desain antarmuka platform registrasi event dengan prinsip user-centered design.' },
-  { id: 'w3', title: 'Landing Page Creative Studio', cat: 'Frontend', img: dummyWebsite, desc: 'Situs landing page responsif dengan animasi smooth dan performa tinggi.' },
-]
-
 type AdminTab = 'foto-video' | 'desain' | 'website'
-
-function loadJSON<T>(key: string, fallback: T): T {
-  try {
-    const saved = localStorage.getItem(key)
-    if (saved) return JSON.parse(saved)
-  } catch {}
-  return fallback
-}
 
 export default function AdminPanel({ onBack }: { onBack: () => void }) {
   const [locked, setLocked] = useState(true)
@@ -90,15 +69,33 @@ export default function AdminPanel({ onBack }: { onBack: () => void }) {
   }
 
   const [activeTab, setActiveTab] = useState<AdminTab>('foto-video')
-  const [photos, setPhotos] = useState<PhotoItem[]>(() => loadJSON('jaki_portfolio_photos', []))
-  const [videos, setVideos] = useState<VideoItem[]>(() => loadJSON('jaki_portfolio_videos', []))
-  const [designs, setDesigns] = useState<DesignProject[]>(() => loadJSON('jaki_portfolio_design', DEFAULT_DESIGNS))
-  const [websites, setWebsites] = useState<WebsiteProject[]>(() => loadJSON('jaki_portfolio_website', DEFAULT_WEBSITES))
+  const [photos, setPhotos] = useState<PhotoItem[]>([])
+  const [videos, setVideos] = useState<VideoItem[]>([])
+  const [designs, setDesigns] = useState<DesignProject[]>([])
+  const [websites, setWebsites] = useState<WebsiteProject[]>([])
 
-  useEffect(() => { localStorage.setItem('jaki_portfolio_photos', JSON.stringify(photos)) }, [photos])
-  useEffect(() => { localStorage.setItem('jaki_portfolio_videos', JSON.stringify(videos)) }, [videos])
-  useEffect(() => { localStorage.setItem('jaki_portfolio_design', JSON.stringify(designs)) }, [designs])
-  useEffect(() => { localStorage.setItem('jaki_portfolio_website', JSON.stringify(websites)) }, [websites])
+  // Load from Firestore on mount
+  useEffect(() => {
+    getProjects().then(data => {
+      if (!data) return
+      if (data.photos) setPhotos(data.photos)
+      if (data.videos) setVideos(data.videos)
+      if (data.designs) setDesigns(data.designs)
+      if (data.websites) setWebsites(data.websites)
+    }).catch(() => {})
+  }, [])
+
+  // Debounced save to Firestore
+  const saving = useRef(false)
+  useEffect(() => {
+    if (saving.current) return
+    saving.current = true
+    const timer = setTimeout(() => {
+      saveProjects({ photos, videos, designs, websites }).catch(console.error)
+      saving.current = false
+    }, 500)
+    return () => { clearTimeout(timer); saving.current = false }
+  }, [photos, videos, designs, websites])
 
   /* ── FOTO & VIDEO FORM ── */
   const [fvType, setFvType] = useState<'foto' | 'video'>('foto')
@@ -204,11 +201,9 @@ export default function AdminPanel({ onBack }: { onBack: () => void }) {
   }
 
   const handleResetAll = () => {
-    if (!confirm('Reset SEMUA data ke bawaan? Data kustom akan hilang!')) return
+    if (!confirm('Hapus SEMUA data proyek?')) return
     setPhotos([]); setVideos([])
-    setDesigns(DEFAULT_DESIGNS); setWebsites(DEFAULT_WEBSITES)
-    localStorage.removeItem('jaki_portfolio_photos')
-    localStorage.removeItem('jaki_portfolio_videos')
+    setDesigns([]); setWebsites([])
   }
 
   if (locked) {

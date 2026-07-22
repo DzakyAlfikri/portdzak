@@ -911,16 +911,12 @@ ul {
 
 /* â”€â”€ CATEGORY PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .catpage-hero {
-  position: relative;
-  padding: 6rem 4rem 4rem;
+  padding: 4rem 4rem 4rem;
   background: var(--off-white);
   border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
 .catpage-hero-back {
-  position: absolute;
-  top: 2rem;
-  left: 4rem;
   background: transparent;
   border: 1px solid rgba(0,0,0,0.1);
   border-radius: 50%;
@@ -933,6 +929,14 @@ ul {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+}
+
+.catpage-hero .container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .catpage-hero-back:hover {
@@ -1097,7 +1101,7 @@ ul {
   .work-row { grid-template-columns: 3rem 1fr auto; }
   .work-row-sub { display: none; }
   .catpage-nav { padding: 1.5rem 2.5rem; }
-  .catpage-hero { padding: 4rem 2.5rem 3rem; }
+  .catpage-hero { padding: 2.5rem 2.5rem 3rem; }
   .catpage-empty { padding: 5rem 2.5rem; }
 }
 
@@ -1143,9 +1147,9 @@ ul {
   .work-row { grid-template-columns: 2.5rem 1fr auto; gap: 1rem; padding: 1.6rem 0; }
   .work-row-label { font-size: 1.6rem; }
 
-  .catpage-nav { padding: 1.2rem 1.5rem; }
-  .catpage-hero { padding: 3rem 1.5rem 2rem; }
+  .catpage-hero { padding: 2rem 1.5rem 2rem; }
   .catpage-title { font-size: 2.5rem; }
+  .catpage-hero-back { width: 36px; height: 36px; font-size: 1rem; margin-bottom: 1rem; }
   .catpage-empty { padding: 4rem 1.5rem; }
 }
 
